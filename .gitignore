@@ -1,0 +1,6 @@
+# npm দিয়ে বসানো library — git-এ রাখব না (বিশাল, npm install দিয়ে আবার বানানো যায়)
+node_modules/
+
+# OS/editor-এর অপ্রয়োজনীয় ফাইল
+.DS_Store
+Thumbs.db
