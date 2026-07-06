@@ -244,3 +244,53 @@ body {
 .menu-item:hover {
     background: rgba(255, 255, 255, 0.08);
 }
+
+/* ---------- tabs ---------- */
+.tab-bar {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    width: 340px;
+    margin: 0 auto 4px;
+}
+
+.tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #1b2a3a;
+    border: 1px solid #3a5a80;
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    padding: 8px 12px;
+    color: #cbd5e1;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.tab-btn.active {
+    background: #12324f;
+    color: #fff;
+}
+
+.tab-close {
+    color: #e06666;
+    font-weight: bold;
+    padding: 0 2px;
+    cursor: pointer;
+}
+
+.tab-close:hover {
+    color: #ff5555;
+}
+
+.tab-add {
+    background: transparent;
+    border: 1px dashed #3a5a80;
+    border-radius: 8px;
+    color: #7fb0e0;
+    cursor: pointer;
+    padding: 6px 12px;
+    font-size: 16px;
+    line-height: 1;
+}

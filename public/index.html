@@ -12,24 +12,8 @@
     <nav class="navbar">
         <button class="nav-btn" id="homeBtn">Home</button>
         <div id="authArea"></div>
-        <!-- Login / Signup popup -->
-        <div class="modal-overlay" id="authModal">
-            <div class="modal">
-                <button class="auth-close" id="authClose">✕</button>
-                <h2 id="authTitle">Login</h2>
-                <div class="auth-error" id="authError"></div>
-
-                <input type="text" id="authName" placeholder="নাম" style="display:none" />
-                <input type="email" id="authEmail" placeholder="Email" />
-                <input type="password" id="authPassword" placeholder="Password" />
-
-                <button class="save-btn" id="authSubmit">Login</button>
-                <p class="auth-toggle" id="authToggle">Account নেই? Sign up করুন</p>
-            </div>
-        </div>
-
     </nav>
-
+    <div class="tab-bar" id="tabBar"></div>
     <main class="card">
         <div class="card-top">
             <button class="nav-btn" id='saveForFutureBtn'>Save for future</button>
@@ -58,8 +42,7 @@
         </div>
     </div>
 
-    <script src="/app.js"></script>
-    <script src="/auth.js"></script>
+    <script type="module" src="/js/main.js"></script>
 
 </body>
 

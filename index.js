@@ -39,11 +39,30 @@ function getAuthUser(req) {
     return token ? verifyToken(token) : null;
 }
 
-// static ফাইল সার্ভ করা (আগের লজিক, এখন একটা ফাংশনে)
+// URL prefix অনুযায়ী কোন top-level folder থেকে সার্ভ করব
+const ROOTS = {
+    "/authentication": path.join(__dirname, "authentication"),
+    "/admin": path.join(__dirname, "admin"),
+};
+
+// static ফাইল সার্ভ করা — public + top-level folder (admin, authentication)
 function serveStatic(req, res) {
-    let requested = req.url === "/" ? "/index.html" : req.url;
-    const filePath = path.normalize(path.join(PUBLIC, requested));
-    if (!filePath.startsWith(PUBLIC)) {
+    const url = decodeURIComponent(req.url.split("?")[0]);
+
+    // default: public; prefix মিললে সেই folder থেকে
+    let baseDir = PUBLIC;
+    let rest = url;
+    for (const prefix in ROOTS) {
+        if (url === prefix || url.startsWith(prefix + "/")) {
+            baseDir = ROOTS[prefix];
+            rest = url.slice(prefix.length);
+            break;
+        }
+    }
+    if (rest === "" || rest === "/") rest = "/index.html";
+
+    const filePath = path.normalize(path.join(baseDir, rest));
+    if (!filePath.startsWith(baseDir)) {
         res.writeHead(403);
         return res.end("Forbidden");
     }
@@ -113,11 +132,11 @@ const server = http.createServer(async (req, res) => {
         const sessionId = crypto.randomBytes(16).toString("hex");
         sessions.set(sessionId, { userId: user.id, name: user.name });
 
-        // JWT বানাই
-        const token = createToken({ userId: user.id, name: user.name, email: user.email });
+        // JWT বানাই (role-ও ভেতরে রাখি → পরে API সুরক্ষায় কাজে লাগবে)
+        const token = createToken({ userId: user.id, name: user.name, email: user.email, role: user.role });
 
         return sendJson(res, 200,
-            { message: "Login সফল", token, user: { id: user.id, name: user.name, email: user.email } },
+            { message: "Login সফল", token, user: { id: user.id, name: user.name, email: user.email, role: user.role } },
             { "Set-Cookie": `sessionId=${sessionId}; HttpOnly; Path=/` }
         );
     }

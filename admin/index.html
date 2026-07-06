@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="bn">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BAZAR — Admin Dashboard</title>
+  <link rel="stylesheet" href="/admin/admin.css" />
+</head>
+
+<body>
+  <!-- ---------- navbar ---------- -->
+  <nav class="navbar">
+    <span class="brand">BAZAR <span id="roleBadge" class="badge">Admin</span></span>
+    <div class="nav-right">
+      <a class="nav-btn" href="/">← List page</a>
+      <button class="nav-btn" id="logoutBtn">Logout</button>
+    </div>
+  </nav>
+
+  <!-- ---------- stat cards ---------- -->
+  <section class="stats" id="stats"></section>
+
+  <!-- ---------- users table ---------- -->
+  <section class="panel">
+    <h2>All Users</h2>
+    <div class="table-wrap">
+      <table class="user-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th class="admin-only">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="userRows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ---------- read-only user view modal ---------- -->
+  <div class="modal-overlay" id="viewModal">
+    <div class="modal">
+      <button class="modal-close" id="viewClose">✕</button>
+      <h2 id="viewTitle">User</h2>
+      <p class="view-sub" id="viewSub"></p>
+      <p class="readonly-note">🔒 Read-only — এখানে কিছু বদলানো যাবে না</p>
+      <ul class="view-list" id="viewList"></ul>
+    </div>
+  </div>
+
+  <script type="module" src="/admin/js/main.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="bn">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BAZAR — Login</title>
+  <link rel="stylesheet" href="/authentication/auth.css" />
+</head>
+
+<body>
+  <div class="auth-card">
+    <h1 class="auth-logo">BAZAR</h1>
+    <h2 id="authTitle">Login</h2>
+    <div class="auth-error" id="authError"></div>
+
+    <input type="text" id="authName" placeholder="নাম" style="display:none" />
+    <input type="email" id="authEmail" placeholder="Email" />
+    <input type="password" id="authPassword" placeholder="Password" />
+
+    <button class="auth-submit" id="authSubmit">Login</button>
+    <p class="auth-toggle" id="authToggle">Account নেই? Sign up করুন</p>
+    <a class="auth-back" href="/">← Home-এ ফিরুন</a>
+  </div>
+
+  <script type="module" src="/authentication/js/auth.js"></script>
+</body>
+
+</html>
