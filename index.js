@@ -230,6 +230,100 @@ const server = http.createServer(async (req, res) => {
         return sendJson(res, 200, { message: "Password বদলেছে" });
     }
 
+    // ==================== ADMIN ROUTES ====================
+    // list → admin + manager দেখতে পারে; বাকি সব (block, role, items) → শুধু admin
+
+    // ---- ADMIN: সব user-এর তালিকা ----
+    if (req.url === "/api/admin/users" && req.method === "GET") {
+        const authUser = getAuthUser(req);
+        if (!authUser) return sendJson(res, 401, { error: "আগে login করুন" });
+        if (authUser.role !== "admin" && authUser.role !== "manager") {
+            return sendJson(res, 403, { error: "অনুমতি নেই" });
+        }
+        try {
+            const result = await pool.query(
+                "SELECT id, name, email, role, is_active FROM users ORDER BY id"
+            );
+            return sendJson(res, 200, { users: result.rows });
+        } catch (err) {
+            console.error(err);
+            return sendJson(res, 500, { error: "সার্ভার সমস্যা" });
+        }
+    }
+
+    // ---- ADMIN: block/enable (is_active বদল) ----
+    const activeMatch = req.url.match(/^\/api\/admin\/users\/(\d+)\/active$/);
+    if (activeMatch && req.method === "PATCH") {
+        const authUser = getAuthUser(req);
+        if (!authUser) return sendJson(res, 401, { error: "আগে login করুন" });
+        if (authUser.role !== "admin") return sendJson(res, 403, { error: "শুধু admin পারবে" });
+
+        let data;
+        try { data = JSON.parse(await readBody(req)); }
+        catch { return sendJson(res, 400, { error: "ভুল ডেটা" }); }
+
+        const id = Number(activeMatch[1]);
+        try {
+            const target = await pool.query("SELECT role FROM users WHERE id = $1", [id]);
+            if (!target.rows[0]) return sendJson(res, 404, { error: "User নেই" });
+            if (target.rows[0].role === "admin") return sendJson(res, 403, { error: "admin-কে বদলানো যাবে না" });
+
+            await pool.query("UPDATE users SET is_active = $1 WHERE id = $2", [!!data.is_active, id]);
+            return sendJson(res, 200, { message: "ঠিক আছে" });
+        } catch (err) {
+            console.error(err);
+            return sendJson(res, 500, { error: "সার্ভার সমস্যা" });
+        }
+    }
+
+    // ---- ADMIN: role বদল (make manager / demote) ----
+    const roleMatch = req.url.match(/^\/api\/admin\/users\/(\d+)\/role$/);
+    if (roleMatch && req.method === "PATCH") {
+        const authUser = getAuthUser(req);
+        if (!authUser) return sendJson(res, 401, { error: "আগে login করুন" });
+        if (authUser.role !== "admin") return sendJson(res, 403, { error: "শুধু admin পারবে" });
+
+        let data;
+        try { data = JSON.parse(await readBody(req)); }
+        catch { return sendJson(res, 400, { error: "ভুল ডেটা" }); }
+
+        const id = Number(roleMatch[1]);
+        const newRole = data.role;
+        if (newRole !== "user" && newRole !== "manager") {
+            return sendJson(res, 400, { error: "role শুধু user বা manager হতে পারে" });
+        }
+        try {
+            const target = await pool.query("SELECT role FROM users WHERE id = $1", [id]);
+            if (!target.rows[0]) return sendJson(res, 404, { error: "User নেই" });
+            if (target.rows[0].role === "admin") return sendJson(res, 403, { error: "admin-কে বদলানো যাবে না" });
+
+            await pool.query("UPDATE users SET role = $1 WHERE id = $2", [newRole, id]);
+            return sendJson(res, 200, { message: "role বদলেছে" });
+        } catch (err) {
+            console.error(err);
+            return sendJson(res, 500, { error: "সার্ভার সমস্যা" });
+        }
+    }
+
+    // ---- ADMIN: কোনো user-এর list দেখা (read-only) ----
+    const itemsMatch = req.url.match(/^\/api\/admin\/users\/(\d+)\/items$/);
+    if (itemsMatch && req.method === "GET") {
+        const authUser = getAuthUser(req);
+        if (!authUser) return sendJson(res, 401, { error: "আগে login করুন" });
+        if (authUser.role !== "admin") return sendJson(res, 403, { error: "শুধু admin পারবে" });
+
+        const id = Number(itemsMatch[1]);
+        try {
+            const u = await pool.query("SELECT id, name, email, role FROM users WHERE id = $1", [id]);
+            if (!u.rows[0]) return sendJson(res, 404, { error: "User নেই" });
+            const items = await pool.query("SELECT title FROM items WHERE user_id = $1 ORDER BY id", [id]);
+            return sendJson(res, 200, { user: u.rows[0], items: items.rows.map((r) => r.title) });
+        } catch (err) {
+            console.error(err);
+            return sendJson(res, 500, { error: "সার্ভার সমস্যা" });
+        }
+    }
+
     // ==================== STATIC FILES ====================
     serveStatic(req, res);
 });

@@ -1,36 +1,49 @@
-// actions.js — block/enable + make manager (আপাতত dummy data বদলায়; পরে API call)
+// actions.js — block/enable + role বদল। আগে API ডাকে, সফল হলে UI update।
 
 import { users } from "./data.js";
 import { renderUsers } from "./table.js";
+import { setActive, setRole } from "./api.js";
 
-// id দিয়ে user খুঁজি
 function find(id) {
   return users.find((u) => u.id === id);
 }
 
-// active ⇄ inactive টগল
-export function toggleActive(id) {
+// active ⇄ inactive
+export async function toggleActive(id) {
   const u = find(id);
   if (!u) return;
-  u.is_active = !u.is_active;
-  // পরে: await fetch("/api/admin/users/" + id + "/active", { method:"PATCH", ... })
-  renderUsers();
+  const newVal = !u.is_active;
+  try {
+    await setActive(id, newVal); // DB-তে বদল
+    u.is_active = newVal;         // cache-এ বদল
+    renderUsers();                // পর্দায় update
+  } catch (e) {
+    alert(e.message);
+  }
 }
 
-// user → manager বানানো
-export function makeManager(id) {
+// user → manager
+export async function makeManager(id) {
   const u = find(id);
   if (!u || u.role !== "user") return;
-  u.role = "manager";
-  // পরে: await fetch("/api/admin/users/" + id + "/role", { method:"PATCH", body:{role:"manager"} })
-  renderUsers();
+  try {
+    await setRole(id, "manager");
+    u.role = "manager";
+    renderUsers();
+  } catch (e) {
+    alert(e.message);
+  }
 }
 
-// manager → আবার user বানানো (demote)
-export function demoteToUser(id) {
+// manager → user (demote)
+export async function demoteToUser(id) {
   const u = find(id);
   if (!u || u.role !== "manager") return;
-  u.role = "user";
-  // পরে: await fetch("/api/admin/users/" + id + "/role", { method:"PATCH", body:{role:"user"} })
-  renderUsers();
+  try {
+    await setRole(id, "user");
+    u.role = "user";
+    renderUsers();
+  } catch (e) {
+    alert(e.message);
+  }
 }

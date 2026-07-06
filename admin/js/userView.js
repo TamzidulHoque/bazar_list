@@ -1,4 +1,6 @@
-// userView.js — user name-এ ক্লিক করলে তার list দেখায় (read-only modal)
+// userView.js — user name-এ ক্লিক → তার list (read-only modal, backend থেকে আনা)
+
+import { getUserItems } from "./api.js";
 
 const modal = document.getElementById("viewModal");
 const closeBtn = document.getElementById("viewClose");
@@ -6,30 +8,36 @@ const title = document.getElementById("viewTitle");
 const sub = document.getElementById("viewSub");
 const list = document.getElementById("viewList");
 
-export function openUserView(user) {
+// list-এ একটা লাইন বসানোর ছোট helper
+function line(text, empty = false) {
+  const li = document.createElement("li");
+  if (empty) li.className = "empty";
+  li.textContent = text; // XSS-safe
+  return li;
+}
+
+export async function openUserView(user) {
   title.textContent = user.name + "-এর List";
   sub.textContent = user.email + " · " + user.role;
-
   list.innerHTML = "";
-  if (!user.items || user.items.length === 0) {
-    const li = document.createElement("li");
-    li.className = "empty";
-    li.textContent = "কোনো item নেই";
-    list.appendChild(li);
-  } else {
-    // পরে: await fetch("/api/admin/users/" + user.id + "/items")
-    for (const item of user.items) {
-      const li = document.createElement("li");
-      li.textContent = item; // textContent → XSS-safe
-      list.appendChild(li);
-    }
-  }
-
+  list.appendChild(line("লোড হচ্ছে..."));
   modal.classList.add("show");
+
+  try {
+    const data = await getUserItems(user.id); // backend থেকে আসল list
+    list.innerHTML = "";
+    if (!data.items || data.items.length === 0) {
+      list.appendChild(line("কোনো item নেই", true));
+    } else {
+      for (const item of data.items) list.appendChild(line(item));
+    }
+  } catch (e) {
+    list.innerHTML = "";
+    list.appendChild(line(e.message, true));
+  }
 }
 
 closeBtn.addEventListener("click", () => modal.classList.remove("show"));
-// overlay-তে ক্লিক করলেও বন্ধ হবে
 modal.addEventListener("click", (e) => {
   if (e.target === modal) modal.classList.remove("show");
 });

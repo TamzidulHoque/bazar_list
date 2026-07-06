@@ -1,10 +1,9 @@
-// data.js — dummy users (পরে backend /api/admin/users থেকে আসবে)
-// প্রতিটা user: id, name, email, role (user|manager|admin), is_active, items[]
+// data.js — user list-এর in-memory cache (backend থেকে ভরা হয়)
+// আগে dummy array ছিল; এখন আসল data /api/admin/users থেকে আসে।
 
-export const users = [
-  { id: 1, name: "Tahmid",  email: "tamzidultahmid@gmail.com", role: "admin",   is_active: true,  items: ["Rice", "Oil", "Salt"] },
-  { id: 2, name: "Saadman", email: "saadman@gmail.com",        role: "manager", is_active: true,  items: ["Notebook", "Pen"] },
-  { id: 3, name: "Rakib",   email: "rakib@gmail.com",          role: "user",    is_active: true,  items: ["Milk", "Bread", "Egg", "Butter"] },
-  { id: 4, name: "Nabila",  email: "nabila@gmail.com",         role: "user",    is_active: false, items: [] },
-  { id: 5, name: "Hasan",   email: "hasan@gmail.com",          role: "user",    is_active: true,  items: ["Soap", "Shampoo"] },
-];
+export let users = [];
+
+// backend থেকে আনা list এখানে বসাই (main.js ডাকে)
+export function setUsers(list) {
+  users = list;
+}

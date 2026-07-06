@@ -1,18 +1,22 @@
-// main.js — admin dashboard entry: role ঠিক করা, render, logout
+// main.js — admin dashboard entry: role যাচাই, backend থেকে data এনে render, logout
 
 import { renderUsers } from "./table.js";
+import { getUsers } from "./api.js";
+import { setUsers } from "./data.js";
 
-// লগইন করা user (localStorage থেকে)। role এখনো backend-এ নেই,
-// তাই আপাতত ?role=manager দিয়ে টেস্ট করা যাবে; নইলে default admin।
+// login-এ পাওয়া user (localStorage থেকে) → তার আসল role
 function getRole() {
-  const params = new URLSearchParams(location.search);
-  if (params.get("role")) return params.get("role"); // টেস্টিং shortcut
   const user = JSON.parse(localStorage.getItem("bazar_user") || "null");
-  return (user && user.role) || "admin";
+  return user && user.role;
 }
 
 // অন্য ফাইল যেন role জানতে পারে (live binding)
 export let currentRole = getRole();
+
+// admin/manager না হলে এই পেজে থাকার অধিকার নেই → login পেজে
+if (currentRole !== "admin" && currentRole !== "manager") {
+  window.location.href = "/authentication/";
+}
 
 // manager হলে admin-only অংশ (Actions, account-এ ঢোকা) লুকাই
 document.body.classList.toggle("role-manager", currentRole === "manager");
@@ -26,4 +30,13 @@ document.getElementById("logoutBtn").addEventListener("click", () => {
   window.location.href = "/authentication/";
 });
 
-renderUsers();
+// backend থেকে আসল user list এনে দেখাই
+(async () => {
+  try {
+    const data = await getUsers();
+    setUsers(data.users);
+    renderUsers();
+  } catch (e) {
+    alert("User list আনা গেল না: " + e.message);
+  }
+})();
