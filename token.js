@@ -1,7 +1,7 @@
 const crypto = require("crypto");
 
 // The secret used to sign tokens. Anyone with this can forge tokens — keep it private.
-const SECRET = "change-this-to-a-long-random-secret";
+const SECRET = process.env.JWT_SECRET;
 
 // base64url = base64 but safe for URLs/headers (no +, /, or = characters).
 function base64url(input) {

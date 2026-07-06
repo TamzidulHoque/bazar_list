@@ -1,3 +1,5 @@
+require("dotenv").config(); // .env থেকে গোপন তথ্য লোড করি (সবার আগে)
+
 const http = require("http");
 const fs = require("fs");
 const path = require("path");

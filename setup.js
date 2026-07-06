@@ -1,3 +1,5 @@
+require("dotenv").config(); // .env থেকে গোপন তথ্য লোড করি (সবার আগে)
+
 const pool = require("./db");
 
 // This SQL creates both tables if they don't already exist.
